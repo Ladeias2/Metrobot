@@ -1,8 +1,8 @@
 # MetrôBot SP
 
-Projeto acadêmico de Inteligência Artificial e Machine Learning que combina busca em grafos, lógica simbólica, modelos de linguagem e interface interativa para calcular rotas em uma representação simplificada do Metrô de São Paulo.
+Projeto acadêmico de Inteligência Artificial e Machine Learning que aplica busca em grafos, lógica simbólica e processamento de linguagem natural a uma representação didática das Linhas 1-Azul, 2-Verde e 3-Vermelha do Metrô de São Paulo.
 
-> **Regra de arquitetura:** o LLM conversa, o algoritmo decide.
+> **Princípio do projeto:** o LLM conversa, o algoritmo decide.
 
 ## Integrantes
 
@@ -10,43 +10,49 @@ Projeto acadêmico de Inteligência Artificial e Machine Learning que combina bu
 - Marcus Vinicius Ladeia Correa
 - Vitoria Pereira Cardoso da Silva
 
-## Objetivos
+## Visão geral
 
-O projeto implementa:
+O MetrôBot recebe uma origem e um destino, transforma locais conhecidos em estações, aplica regras lógicas e calcula uma rota no grafo. A escolha da rota é realizada por algoritmos determinísticos.
 
-- Modelagem das Linhas 1-Azul, 2-Verde e 3-Vermelha como grafo
-- 52 estações únicas
-- Busca em largura, BFS
-- Busca em profundidade, DFS
-- Comparação do esforço das buscas
-- Estações fechadas e linhas paralisadas
-- Identificação de baldeações
+Quando habilitado, o modelo de linguagem é utilizado somente para interpretar pedidos em linguagem natural. A narração atual da rota é produzida pelo modo offline, a partir dos resultados previamente calculados.
+
+O projeto funciona por padrão no modo `offline`, sem chave de API e sem conexão com a internet.
+
+## Funcionalidades obrigatórias
+
+- Modelagem das três linhas como um único grafo
+- 52 estações únicas, sem vizinhos duplicados
+- Registro da linha ou das linhas disponíveis em cada trecho
+- BFS, busca em largura
+- DFS, busca em profundidade
+- Respeito a estações bloqueadas
+- Comparação do número de estações visitadas
+- Identificação de paradas e baldeações
+- Base com pelo menos três pontos de interesse por linha
 - Lógica proposicional e tabela-verdade
 - Lógica de primeira ordem
-- Encadeamento para frente
-- Justificativas das inferências
-- Intérprete e narrador com Llama
-- Integração opcional com Groq ou Ollama
-- Modo offline sem dependência de API
+- Encadeamento para frente com justificativas
+- Regras R1 a R7
+- Inferência automática das integrações Sé, Paraíso e Ana Rosa
+- Interpretação de pedidos com validação de nomes
+- Funcionamento offline
 - Interface com `ipywidgets`
-- Testes automatizados
+- Visualização das três linhas
+- Testes automatizados, incluindo os seis casos obrigatórios
 
 ## Funcionalidades adicionais
 
-O notebook também contém itens opcionais para pontuação adicional:
-
 - Busca que prioriza menos baldeações
-- Dijkstra para rota de menor tempo estimado
-- Penalidade de 5 minutos por baldeação
-- Simulação de paralisação de linha por regra lógica
-- Mapa da rede com NetworkX e Matplotlib
-- Relatório gráfico de esforço BFS versus DFS
+- Dijkstra com custo de 2 minutos por trecho e 5 minutos por baldeação
+- Simulação de paralisação de linha
+- Visualização opcional com NetworkX e Matplotlib
+- Relatório comparativo de esforço entre BFS e DFS
 
 ## Estrutura do repositório
 
 ```text
 .
-├── MetroBot_SP_2_0_Nota_Maxima_Corrigido.ipynb
+├── MetroBot.ipynb
 ├── README.md
 └── .gitignore
 ```
@@ -54,9 +60,9 @@ O notebook também contém itens opcionais para pontuação adicional:
 ## Requisitos
 
 - Python 3.10 ou superior
-- Jupyter Notebook, JupyterLab, Google Colab ou VS Code com extensão Jupyter
+- Google Colab, Jupyter Notebook, JupyterLab ou VS Code com a extensão Jupyter
 
-Principais bibliotecas:
+Dependências utilizadas:
 
 ```text
 ipywidgets
@@ -67,20 +73,20 @@ groq
 ollama
 ```
 
-O próprio notebook contém uma célula que verifica e instala as dependências opcionais necessárias.
+O notebook possui uma célula que verifica e instala dependências ausentes no mesmo ambiente do kernel. Antes de publicar, confirme que essa célula contém também `groq` e `ollama` caso esses provedores sejam utilizados.
 
-## Como executar no Google Colab
+## Execução no Google Colab
 
-1. Faça upload do arquivo `MetroBot_SP_2_0_Nota_Maxima_Corrigido.ipynb`.
+1. Faça upload de `MetroBot.ipynb`.
 2. Abra o notebook.
-3. Selecione **Ambiente de execução → Executar tudo**.
+3. Selecione **Ambiente de execução > Executar tudo**.
 4. Aguarde a instalação das dependências.
-5. Verifique se a célula de testes apresenta a mensagem de sucesso.
-6. Use o painel interativo exibido ao final.
+5. Confirme que a célula de testes terminou sem erros.
+6. Utilize o painel interativo exibido nas últimas células.
 
-## Como executar no VS Code
+## Execução no VS Code
 
-Crie e ative um ambiente virtual:
+Crie um ambiente virtual.
 
 ### Windows
 
@@ -107,50 +113,46 @@ Depois:
 
 1. Abra o notebook no VS Code.
 2. Selecione o kernel do ambiente `.venv`.
-3. Execute todas as células em ordem.
+3. Execute as células em ordem.
 
-## Modos de execução do LLM
+## Provedores de linguagem
 
-No notebook, altere a variável:
+A variável abaixo controla o modo de execução:
 
 ```python
 PROVEDOR = "offline"
 ```
 
-Opções disponíveis:
+Valores aceitos:
 
-- `offline`: não utiliza LLM nem internet
-- `groq`: utiliza uma API hospedada
-- `ollama`: utiliza um modelo local
+- `offline`: interpretação local por correspondência de nomes
+- `groq`: interpretação por API
+- `ollama`: interpretação com modelo local
 
-O modo padrão é `offline`, garantindo que a aplicação e os testes funcionem sem chave de API.
+Se o Groq ou o Ollama falhar durante a interpretação, o código utiliza o interpretador offline como fallback.
 
-## Configuração do Groq
+### Groq
 
-Nunca coloque a chave diretamente no notebook.
-
-### Arquivo `.env`
-
-Crie um arquivo `.env` na raiz do projeto:
+Nunca escreva a chave diretamente no notebook. Para execução local, crie um arquivo `.env`:
 
 ```env
 GROQ_API_KEY=sua_chave_aqui
-GROQ_MODEL=nome_do_modelo_disponivel
+GROQ_MODEL=modelo_disponivel_na_sua_conta
 ```
 
-O arquivo `.env` está incluído no `.gitignore` e não deve ser enviado ao GitHub.
+O arquivo `.env` deve permanecer no `.gitignore`.
 
-No Google Colab, utilize os Secrets e crie a variável `GROQ_API_KEY`.
+No Google Colab, armazene `GROQ_API_KEY` nos Secrets do notebook.
 
-## Configuração do Ollama
+### Ollama
 
-Após instalar o Ollama, baixe o modelo:
+Após instalar o Ollama, baixe o modelo local:
 
 ```bash
 ollama pull llama3.2
 ```
 
-Depois, altere no notebook:
+Depois, altere o provedor:
 
 ```python
 PROVEDOR = "ollama"
@@ -159,76 +161,90 @@ PROVEDOR = "ollama"
 ## Arquitetura
 
 ```text
-Pedido em linguagem natural
-           ↓
-LLM ou interpretador offline
-           ↓
-Validação dos nomes
-           ↓
+Pedido do passageiro
+        ↓
+Intérprete LLM ou offline
+        ↓
+Validação de origem e destino
+        ↓
 Base de conhecimento e inferência
-           ↓
-BFS, DFS ou busca bônus
-           ↓
-Cálculo de paradas e baldeações
-           ↓
-Narrador e interface
+        ↓
+BFS, DFS ou busca adicional
+        ↓
+Paradas, baldeações e tempo estimado
+        ↓
+Narração offline e interface
 ```
 
-O LLM não escolhe a rota. Ele é usado somente para interpretar o pedido e explicar um resultado já calculado por algoritmos determinísticos.
+A rota não é criada pelo LLM. Ela é calculada sobre o grafo, considerando estações bloqueadas e linhas paralisadas.
 
 ## Regras lógicas
 
-O projeto utiliza sete regras principais:
+- **R1:** um local próximo de uma estação determina a origem.
+- **R2:** um local próximo de uma estação determina o destino.
+- **R3:** uma estação fechada torna-se bloqueada.
+- **R4:** uma estação com elevador em manutenção torna-se inacessível quando o usuário precisa de acessibilidade.
+- **R5:** origem ou destino inacessível produz um alerta.
+- **R6:** uma estação pertencente a mais de uma linha é uma integração.
+- **R7:** uma linha paralisada permite deduzir os trechos indisponíveis dessa linha.
 
-1. Um local próximo de uma estação determina a origem.
-2. Um local próximo de uma estação determina o destino.
-3. Uma estação fechada torna-se bloqueada.
-4. Uma estação com elevador em manutenção pode ficar inacessível.
-5. Origem ou destino inacessível gera alerta.
-6. Uma estação pertencente a mais de uma linha é uma integração.
-7. Uma linha paralisada torna seus trechos indisponíveis.
+As integrações não são cadastradas manualmente. O motor de inferência deduz Sé, Paraíso e Ana Rosa a partir dos fatos `pertence(estação, linha)`.
 
-As integrações Sé, Paraíso e Ana Rosa são deduzidas pelo motor de inferência, e não cadastradas diretamente.
+A busca recebe diretamente o conjunto de linhas paralisadas e desconsidera os trechos atendidos exclusivamente por essas linhas. A R7 registra os fatos `trecho_indisponivel` para inferência e auditoria.
 
 ## Testes
 
-Execute no notebook:
+Execute:
 
 ```python
 rodar_testes()
 ```
 
-Os testes verificam, entre outros pontos:
+Os testes cobrem:
 
-- Quantidade de estações no grafo
-- Trecho compartilhado entre Paraíso e Ana Rosa
+- Quantidade de estações
+- Trecho compartilhado Paraíso–Ana Rosa
 - Integrações deduzidas
-- Rotas e baldeações obrigatórias
+- Rotas e baldeações esperadas
 - Estações fechadas
 - Alertas de acessibilidade
 - Paralisação de linha
 - Validação de nomes
-- Modo offline
-- Dijkstra e busca com menos baldeações
+- Interpretação offline
+- Busca com menos baldeações
+- Dijkstra
 
-## Explicação dos casos com Paraíso fechada
+Ao final, o notebook informa apenas que todos os testes passaram. A quantidade não é usada como critério documental, pois um mesmo `assert` pode validar mais de uma condição.
 
-Quando Paraíso está fechada, a Linha 2 fica interrompida entre Brigadeiro e Ana Rosa.
+## Casos com Paraíso fechada
 
-- De Vila Madalena para Jabaquara, não existe rota, pois o lado oeste da Linha 2 perde acesso à Linha 1.
-- De Vila Prudente para Jabaquara, ainda existe rota via Ana Rosa, onde é possível acessar a Linha 1.
+O fechamento de Paraíso impede sua utilização como estação e interrompe as conexões que passam pelo nó.
+
+- **Vila Madalena → Jabaquara:** não há rota no modelo, pois o trecho oeste da Linha 2 perde acesso à Linha 1.
+- **Vila Prudente → Jabaquara:** há rota via Ana Rosa, porque essa integração ainda pode ser alcançada pelo trecho leste da Linha 2.
+
+## Limitações
+
+- A rede é uma simplificação acadêmica com apenas três linhas.
+- Tempos, bloqueios e manutenções são simulados.
+- Os pontos de interesse fazem parte de uma base didática.
+- O sistema não consulta dados operacionais em tempo real.
+- O narrador atual utiliza o modo offline mesmo quando Groq ou Ollama está habilitado.
+- A R7 produz fatos para auditoria, enquanto a busca aplica diretamente o conjunto de linhas paralisadas.
 
 ## Segurança
 
 - Não publique chaves de API.
-- Não remova `.env` do `.gitignore`.
-- Revise o histórico do Git antes de publicar.
-- Caso uma chave tenha sido exposta, revogue-a imediatamente e gere outra.
+- Mantenha `.env` no `.gitignore`.
+- Revise as células e os outputs do notebook antes do commit.
+- Procure por textos como `gsk_`, `GROQ_API_KEY=` e outras credenciais antes de publicar.
+- Se uma chave tiver sido exposta, revogue-a e gere uma nova.
 
 ## Uso de inteligência artificial
 
-Este projeto utilizou assistência de IA para apoiar a estruturação do notebook, a revisão do código e a criação de testes. As rotas são decididas por algoritmos determinísticos, e as saídas do modelo de linguagem passam por validação. O grupo revisou o funcionamento e deve estar preparado para explicar as decisões de implementação.
+Foi utilizada assistência de IA na estruturação, revisão e elaboração de testes. As rotas são calculadas por algoritmos determinísticos e as entradas produzidas pelo modelo passam por validação.
 
-## Observação acadêmica
 
-Este repositório tem finalidade educacional. Os dados representam um modelo simplificado de três linhas e não devem ser utilizados como fonte de informações operacionais em tempo real.
+## Finalidade
+
+Projeto destinado exclusivamente a fins acadêmicos e educacionais. Não utilize este sistema como fonte de informações operacionais sobre a rede de transporte.
